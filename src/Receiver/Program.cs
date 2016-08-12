@@ -1,22 +1,22 @@
 ﻿using System;
 
-namespace Publisher
+namespace Receiver
 {
     class Program
     {
-        private static MessagePublisher _messagePublisher;
+        private static MessageReceiver _publisher;
 
         static void Main()
         {
-            _messagePublisher = new MessagePublisher();
-            _messagePublisher.Start();
+            _publisher = new MessageReceiver();
+            _publisher.Start();
             Console.CancelKeyPress += OnCancelKeyPress;
         }
 
         private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs consoleCancelEventArgs)
         {
             Console.WriteLine("Stopping publisher");
-            _messagePublisher.Stop();
+            _publisher.Stop();
             Console.WriteLine("Publisher stopped");
         }
     }
