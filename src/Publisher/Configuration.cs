@@ -41,12 +41,12 @@ namespace Publisher
         {
             get
             {
-                if (!_maxQueueDepth.HasValue)
+                if (!_messageSize.HasValue)
                 {
-                    _maxQueueDepth = Convert.ToInt32(ConfigurationManager.AppSettings["MessageSize"]);
+                    _messageSize = Convert.ToInt32(ConfigurationManager.AppSettings["MessageSize"]);
                 }
 
-                return _maxQueueDepth.Value;
+                return _messageSize.Value;
             }
         }
     }

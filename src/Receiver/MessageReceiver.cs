@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Autofac;
 
@@ -41,21 +43,17 @@ namespace Receiver
         private static IBusControl BuildBusContol(string queueName)
         {
             var busControl = Bus.Factory.CreateUsingRabbitMq(
-                config =>
+                cfg =>
                     {
-                        var host = config.Host(
-                            new Uri("rabbitmq://localhost"), 
+                        cfg.Host(
+                            new Uri("rabbitmq://localhost"),
                             h =>
                                 {
                                     h.Username("test");
                                     h.Password("test");
                                 });
-                        config.ReceiveEndpoint(host, queueName,
-                            e =>
-                                {
-                                    e.Consumer<TestEventConsumer>();
-                                });
-                        config.Durable = true;
+                        cfg.ReceiveEndpoint(queueName, e => { e.Consumer<TestEventConsumer>(); });
+                        cfg.Durable = true;
                     });
 
             return busControl;
