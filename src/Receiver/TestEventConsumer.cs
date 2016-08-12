@@ -12,7 +12,6 @@ namespace Receiver
     {
         public Task Consume(ConsumeContext<ITestEvent> context)
         {
-            Console.WriteLine($"Received event {context.Message.EventName}");
             return TaskUtil.Completed;
         }
     }

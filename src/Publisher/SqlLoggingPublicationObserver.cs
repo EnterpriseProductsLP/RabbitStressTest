@@ -21,7 +21,6 @@ namespace Publisher
         {
             // 1.  Decrement queue depth
 
-            // Console.Out.WriteLineAsync($"Published message: {context.MessageId}");
             PublicationQueueManager.DecrementQueueDepth();
             return TaskUtil.Completed;
         }

@@ -68,7 +68,9 @@ namespace Publisher
                         if (waiting)
                         {
                             waiting = false;
-                            Console.WriteLine("Queue depth below maximum threshold.  Resuming.");
+                            Console.Clear();
+                            Console.WriteLine("Publishing messages.");
+                            Console.WriteLine($"Current depth: {PublicationQueueManager.QueueDepth}");
                         }
 
                         var eventName = $"Event {PublicationQueueManager.QueueDepth}";
@@ -81,10 +83,13 @@ namespace Publisher
                     {
                         if (waiting)
                         {
+                            Console.Clear();
+                            Console.WriteLine("Waiting for queue to drain.");
+                            Console.WriteLine($"Current depth: {PublicationQueueManager.QueueDepth}");
+                            Thread.Sleep(10000);
                             continue;
                         }
 
-                        Console.WriteLine("Max queue value reached.  Waiting.");
                         waiting = true;
                     }
                 }

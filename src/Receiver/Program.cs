@@ -19,7 +19,6 @@ namespace Receiver
             }
 
             Console.WriteLine("Exited gracefully");
-            Console.ReadLine();
         }
 
         private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
