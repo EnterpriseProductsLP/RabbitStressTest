@@ -59,39 +59,19 @@ namespace Publisher
                 var cancellationToken = cancellationTokenSource.Token;
 
                 _busControl.Start();
-                var waiting = false;
 
                 while (!Stopping)
                 {
-                    if (PublicationQueueManager.CanPublish)
+                    if (!PublicationQueueManager.CanPublish)
                     {
-                        if (waiting)
-                        {
-                            waiting = false;
-                            Console.Clear();
-                            Console.WriteLine("Publishing messages.");
-                            Console.WriteLine($"Current depth: {PublicationQueueManager.QueueDepth}");
-                        }
-
-                        var eventName = $"Event {PublicationQueueManager.QueueDepth}";
-                        var paylod = new string('*', _messageSize);
-                        var testEvent = new TestEvent(eventName, paylod);
-                        PublicationQueueManager.IncrementQueueDepth();
-                        _busControl.Publish(testEvent, cancellationToken);
+                        continue;
                     }
-                    else
-                    {
-                        if (waiting)
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Waiting for queue to drain.");
-                            Console.WriteLine($"Current depth: {PublicationQueueManager.QueueDepth}");
-                            Thread.Sleep(10000);
-                            continue;
-                        }
 
-                        waiting = true;
-                    }
+                    var eventName = $"Event {PublicationQueueManager.QueueDepth}";
+                    var paylod = new string('*', _messageSize);
+                    var testEvent = new TestEvent(eventName, paylod);
+                    PublicationQueueManager.IncrementQueueDepth();
+                    _busControl.Publish(testEvent, cancellationToken);
                 }
 
                 cancellationTokenSource.Cancel(true);

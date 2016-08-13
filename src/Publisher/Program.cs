@@ -9,6 +9,8 @@ namespace Publisher
 
         static void Main()
         {
+            Console.Title = "RabbitMQ Stress Test - Publisher";
+
             _messageMessagePublisher = new MessagePublisher();
             new Thread(_messageMessagePublisher.Start).Start();
             Console.CancelKeyPress += OnCancelKeyPress;

@@ -10,6 +10,8 @@ namespace Receiver
 
         static void Main()
         {
+            Console.Title = "RabbitMQ Stress Test - Consumer";
+
             _messageReceiver = new MessageReceiver();
             _messageReceiver.Start();
             Console.CancelKeyPress += OnCancelKeyPress;
