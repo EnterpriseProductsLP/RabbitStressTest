@@ -11,8 +11,6 @@ namespace Publisher
 
         private static string _clusterName;
 
-        private static int? _counterInterval;
-
         private static int? _maxQueueDepth;
 
         private static int? _messageSize;
@@ -33,19 +31,6 @@ namespace Publisher
         public static string[] ClusterMembers => _clusterMembers ?? (_clusterMembers = ConfigurationManager.AppSettings["ClusterMembers"].Split(','));
 
         public static string ClusterName => _clusterName ?? (_clusterName = ConfigurationManager.AppSettings["ClusterName"]);
-
-        public static int CounterInterval
-        {
-            get
-            {
-                if (!_counterInterval.HasValue)
-                {
-                    _counterInterval = Convert.ToInt32(ConfigurationManager.AppSettings["CouterInterval"]);
-                }
-
-                return _counterInterval.Value;
-            }
-        }
 
         public static int MaxQueueDepth
         {
