@@ -23,8 +23,6 @@ namespace Publisher
             Console.WriteLine("CTRL+C detected");
             Console.WriteLine("Stopping publisher");
             _messageMessagePublisher.Stop();
-
-            Console.WriteLine("Publisher stopped");
         }
 
         private static void RunMigrations()
@@ -42,6 +40,7 @@ namespace Publisher
             {
             }
 
+            Console.WriteLine("Publisher stopped");
             Console.WriteLine("Exited gracefully");
         }
 

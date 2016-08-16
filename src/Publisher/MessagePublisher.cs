@@ -35,9 +35,10 @@ namespace Publisher
                     continue;
                 }
 
+                var clientName = Configuration.ClientName;
                 var eventName = $"Event {PublicationQueueManager.QueueDepth}";
                 var paylod = new string('*', _messageSize);
-                var testEvent = new TestEvent(eventName, paylod);
+                var testEvent = new TestEvent(clientName, eventName, paylod);
                 PublicationQueueManager.IncrementQueueDepth();
                 _busControl.Publish(testEvent);
             }

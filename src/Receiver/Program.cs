@@ -24,8 +24,6 @@ namespace Receiver
             Console.WriteLine("CTRL+C detected");
             Console.WriteLine("Stopping receiver");
             _messageMessageReceiver.Stop();
-
-            Console.WriteLine("Receiver stopped");
         }
 
         private static void RunMigrations()
@@ -42,13 +40,13 @@ namespace Receiver
             while (!_messageMessageReceiver.Stopped)
             {
             }
-
+            Console.WriteLine("Receiver stopped");
             Console.WriteLine("Exited gracefully");
         }
 
         private static void SetConsoleTitle()
         {
-            Console.Title = "RabbitMQ Stress Test - Publisher";
+            Console.Title = "RabbitMQ Stress Test - Receiver";
         }
 
         private static void StartMessageReceiver()
