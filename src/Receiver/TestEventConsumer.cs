@@ -22,21 +22,25 @@ namespace Receiver
                 command.CommandText = "dbo.spUnconsumedMessageDelete";
                 var clientNameParameter = new SqlParameter("clientName", SqlDbType.VarChar, 100)
                                               {
-                                                  Value = context.Message.ClientName
+                                                  Value =
+                                                      context.Message
+                                                      .ClientName
                                               };
 
                 var messageIdParameter = new SqlParameter("messageId", SqlDbType.UniqueIdentifier)
                                              {
-                                                 Value = context.MessageId
+                                                 Value =
+                                                     context
+                                                     .MessageId
                                              };
 
                 command.Parameters.Add(clientNameParameter);
                 command.Parameters.Add(messageIdParameter);
                 command.ExecuteNonQuery();
                 connection.Close();
-
-                return TaskUtil.Completed;
             }
+
+            return TaskUtil.Completed;
         }
 
         private static SqlConnection GetConnection()

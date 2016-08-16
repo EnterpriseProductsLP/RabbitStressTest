@@ -59,13 +59,18 @@ namespace Publisher
                 c =>
                     {
                         c.Host(
-                            new Uri("rabbitmq://localhost"), 
+                            new Uri($"rabbitmq://{Configuration.ClusterName}"), 
                             h =>
                                 {
                                     h.Username("test");
                                     h.Password("test");
+                                    h.UseCluster(x =>
+                                            {
+                                                x.ClusterMembers = Configuration.ClusterMembers;
+                                            });
                                 });
                         c.Durable = true;
+                        c.PublisherConfirmation = true;
                     });
         }
 

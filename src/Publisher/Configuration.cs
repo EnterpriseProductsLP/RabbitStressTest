@@ -7,6 +7,10 @@ namespace Publisher
     {
         private static string _clientName;
 
+        private static string[] _clusterMembers;
+
+        private static string _clusterName;
+
         private static int? _counterInterval;
 
         private static int? _maxQueueDepth;
@@ -25,6 +29,10 @@ namespace Publisher
                 return _clientName;
             }
         }
+
+        public static string[] ClusterMembers => _clusterMembers ?? (_clusterMembers = ConfigurationManager.AppSettings["ClusterMembers"].Split(','));
+
+        public static string ClusterName => _clusterName ?? (_clusterName = ConfigurationManager.AppSettings["ClusterName"]);
 
         public static int CounterInterval
         {

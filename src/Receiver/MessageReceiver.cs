@@ -3,6 +3,7 @@
 using Autofac;
 
 using MassTransit;
+using MassTransit.Policies;
 
 namespace Receiver
 {
@@ -27,9 +28,9 @@ namespace Receiver
         {
             get
             {
-                lock (this._stopLock)
+                lock (_stopLock)
                 {
-                    return this._stopped;
+                    return _stopped;
                 }
             }
         }
@@ -63,21 +64,25 @@ namespace Receiver
 
         private static IBusControl BuildBusContol(string queueName)
         {
-            var busControl = Bus.Factory.CreateUsingRabbitMq(
-                cfg =>
-                    {
-                        cfg.Host(
-                            new Uri("rabbitmq://localhost"),
-                            h =>
-                                {
-                                    h.Username("test");
-                                    h.Password("test");
-                                });
-                        cfg.ReceiveEndpoint(queueName, e => { e.Consumer<TestEventConsumer>(); });
-                        cfg.Durable = true;
-                    });
-
-            return busControl;
+            return Bus.Factory.CreateUsingRabbitMq(
+                c =>
+                {
+                    c.Host(
+                        new Uri($"rabbitmq://{Configuration.ClusterName}"),
+                        h =>
+                        {
+                            h.Username("test");
+                            h.Password("test");
+                            h.UseCluster(x =>
+                            {
+                                x.ClusterMembers = Configuration.ClusterMembers;
+                            });
+                        });
+                    c.UseRetry(new IntervalRetryPolicy(new AllPolicyExceptionFilter(), new TimeSpan(0, 0, 1, 0)));
+                    c.Durable = true;
+                    c.PublisherConfirmation = true;
+                    c.ReceiveEndpoint(queueName, e => { e.Consumer<TestEventConsumer>(); });
+                });
         }
 
         private static IContainer BuildContainer()
