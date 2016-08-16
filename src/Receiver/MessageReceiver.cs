@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Autofac;
+
+using Common;
 
 using MassTransit;
 
 namespace Receiver
 {
-    public class MessageReceiver
+    public class MessageReceiver : Worker
     {
         private readonly IBusControl _busControl;
 
@@ -19,16 +19,18 @@ namespace Receiver
             _busControl = container.Resolve<IBusControl>();
         }
 
-        public void Start()
+        protected override void CleanupWorkLoop()
+        {
+            _busControl.Stop();
+        }
+
+        protected override void PrepareWorkLoop()
         {
             _busControl.Start();
         }
 
-        public void Stop()
+        protected override void WorkLoop()
         {
-            // Stop the bus
-            var stopTask = _busControl.StopAsync();
-            stopTask.Wait();
         }
 
         private static IContainer BuildContainer()
@@ -44,17 +46,17 @@ namespace Receiver
         {
             var busControl = Bus.Factory.CreateUsingRabbitMq(
                 cfg =>
-                    {
-                        cfg.Host(
-                            new Uri("rabbitmq://localhost"),
-                            h =>
-                                {
-                                    h.Username("test");
-                                    h.Password("test");
-                                });
-                        cfg.ReceiveEndpoint(queueName, e => { e.Consumer<TestEventConsumer>(); });
-                        cfg.Durable = true;
-                    });
+                {
+                    cfg.Host(
+                        new Uri("rabbitmq://localhost"),
+                        h =>
+                        {
+                            h.Username("test");
+                            h.Password("test");
+                        });
+                    cfg.ReceiveEndpoint(queueName, e => { e.Consumer<TestEventConsumer>(); });
+                    cfg.Durable = true;
+                });
 
             return busControl;
         }

@@ -20,12 +20,16 @@ namespace Migrations
 
         public MigrationRunner BuildMigrationRunner()
         {
-            var migrationAssembly = Assembly.GetAssembly(typeof(MigrationRunnerBuilder));
-            var runnerContext = new RunnerContext(new NullAnnouncer());
+            var announcer = new ConsoleAnnouncer();
             var connection = new SqlConnection(_connectionString);
-            var serverProcessor = new SqlServerProcessor(connection, new SqlServer2014Generator(), new NullAnnouncer(), new ProcessorOptions(), new SqlServerDbFactory());
-            var migrationRunner = new MigrationRunner(migrationAssembly, runnerContext, serverProcessor);
-            return migrationRunner;
+            var migrationAssembly = Assembly.GetAssembly(typeof(MigrationRunnerBuilder));
+            var migrationGenerator = new SqlServer2014Generator();
+            var processorOptions = new ProcessorOptions();
+            var dbFactory = new SqlServerDbFactory();
+            var runnerContext = new RunnerContext(announcer);
+            var serverProcessor = new SqlServerProcessor(connection, migrationGenerator, announcer, processorOptions, dbFactory);
+
+            return new MigrationRunner(migrationAssembly, runnerContext, serverProcessor);
         }
     }
 }

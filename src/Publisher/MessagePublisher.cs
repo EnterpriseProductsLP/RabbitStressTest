@@ -1,25 +1,20 @@
 ﻿using System;
-using System.Threading;
 
 using Autofac;
+
+using Common;
 
 using MassTransit;
 
 namespace Publisher
 {
-    public class MessagePublisher
+    public class MessagePublisher : Worker
     {
         private readonly IBusControl _busControl;
 
         private readonly int _messageSize;
 
         private readonly ConnectHandle _publicationObserverHandle;
-
-        private readonly object _stopLock = new object();
-
-        private bool _stopped;
-
-        private bool _stopping;
 
         public MessagePublisher()
         {
@@ -29,90 +24,51 @@ namespace Publisher
             _publicationObserverHandle = _busControl.ConnectPublishObserver(new SqlLoggingPublicationObserver());
         }
 
-        public bool Stopping
+        protected override void CleanupWorkLoop()
         {
-            get
+            Console.WriteLine("Waiting for publication queue to drain.");
+            while (PublicationQueueManager.QueueDepth > 0)
             {
-                lock (_stopLock)
-                {
-                    return _stopping;
-                }
             }
+
+            Console.WriteLine("Finished processing publication queue.");
+            _publicationObserverHandle.Disconnect();
+            _busControl.Stop();
         }
 
-        public bool Stopped
+        protected override void PrepareWorkLoop()
         {
-            get
-            {
-                lock (_stopLock)
-                {
-                    return _stopped;
-                }
-            }
+            _busControl.Start();
         }
 
-        public void Start()
+        protected override void WorkLoop()
         {
-            try
+            if (!PublicationQueueManager.CanPublish)
             {
-                var cancellationTokenSource = new CancellationTokenSource();
-                var cancellationToken = cancellationTokenSource.Token;
-
-                _busControl.Start();
-
-                while (!Stopping)
-                {
-                    if (!PublicationQueueManager.CanPublish)
-                    {
-                        continue;
-                    }
-
-                    var eventName = $"Event {PublicationQueueManager.QueueDepth}";
-                    var paylod = new string('*', _messageSize);
-                    var testEvent = new TestEvent(eventName, paylod);
-                    PublicationQueueManager.IncrementQueueDepth();
-                    _busControl.Publish(testEvent, cancellationToken);
-                }
-
-                cancellationTokenSource.Cancel(true);
-
-                Console.WriteLine($"Waiting for publication queue to drain.");
-                while (PublicationQueueManager.QueueDepth > 0)
-                {
-                }
-
-                Console.WriteLine($"Finished processing publication queue.");
-                _publicationObserverHandle.Disconnect();
-                _busControl.Stop();
+                return;
             }
-            finally
-            {
-                SetStopped();
-            }
-        }
 
-        public void Stop()
-        {
-            lock (_stopLock)
-            {
-                _stopping = true;
-            }
+            var eventName = $"Event {PublicationQueueManager.QueueDepth}";
+            var paylod = new string('*', _messageSize);
+            var testEvent = new TestEvent(eventName, paylod);
+            PublicationQueueManager.IncrementQueueDepth();
+            _busControl.Publish(testEvent);
         }
 
         private static IBusControl BuildBusContol()
         {
             return Bus.Factory.CreateUsingRabbitMq(
                 c =>
-                {
-                    c.Host(
-                        new Uri("rabbitmq://localhost"),
-                        h =>
-                        {
-                            h.Username("test");
-                            h.Password("test");
-                        });
-                    c.Durable = true;
-                });
+                    {
+                        c.Host(
+                            new Uri("rabbitmq://localhost"), 
+                            h =>
+                                {
+                                    h.Username("test");
+                                    h.Password("test");
+                                });
+                        c.Durable = true;
+                    });
         }
 
         private static IContainer BuildContainer()
@@ -122,14 +78,6 @@ namespace Publisher
             builder.RegisterInstance(busControl).As<IBusControl>();
 
             return builder.Build();
-        }
-
-        private void SetStopped()
-        {
-            lock (_stopLock)
-            {
-                _stopped = true;
-            }
         }
     }
 }

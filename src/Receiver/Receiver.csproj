@@ -83,6 +83,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{4936B9D1-ADA7-4D1E-AB5A-0CC78A2EA331}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Contracts\Contracts.csproj">
       <Project>{5B42DDF3-D316-4C50-AA79-3B877E0B6CB3}</Project>
       <Name>Contracts</Name>

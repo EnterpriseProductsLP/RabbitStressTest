@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Publisher", "Publisher\Publisher.csproj", "{D708B552-00E1-47D9-93EA-A3BA3898F670}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Receiver", "Receiver\Receiver.csproj", "{4D3F5CAE-0C6B-4066-9A1C-985359ECFAA3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations", "Migrations\Migrations.csproj", "{B87977DB-E2D5-4214-B40D-2FD7271E26FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{4936B9D1-ADA7-4D1E-AB5A-0CC78A2EA331}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{B87977DB-E2D5-4214-B40D-2FD7271E26FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B87977DB-E2D5-4214-B40D-2FD7271E26FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B87977DB-E2D5-4214-B40D-2FD7271E26FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4936B9D1-ADA7-4D1E-AB5A-0CC78A2EA331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4936B9D1-ADA7-4D1E-AB5A-0CC78A2EA331}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4936B9D1-ADA7-4D1E-AB5A-0CC78A2EA331}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4936B9D1-ADA7-4D1E-AB5A-0CC78A2EA331}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
