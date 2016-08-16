@@ -5,11 +5,26 @@ namespace Publisher
 {
     internal static class Configuration
     {
+        private static string _clientName;
+
         private static int? _counterInterval;
 
         private static int? _maxQueueDepth;
 
         private static int? _messageSize;
+
+        public static string ClientName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_clientName))
+                {
+                    _clientName = ConfigurationManager.AppSettings["ClientName"];
+                }
+
+                return _clientName;
+            }
+        }
 
         public static int CounterInterval
         {

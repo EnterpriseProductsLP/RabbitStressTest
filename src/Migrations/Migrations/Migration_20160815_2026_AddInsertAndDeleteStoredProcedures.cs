@@ -9,6 +9,7 @@ namespace Migrations
         {
             Execute.Script(@"Scripts\Create_spUnconsumedMessageInsert.sql");
             Execute.Script(@"Scripts\Create_spUnconsumedMessageDelete.sql");
+            Execute.Sql("GRANT EXECUTE TO rabbit_stress_user");
         }
 
         public override void Down()

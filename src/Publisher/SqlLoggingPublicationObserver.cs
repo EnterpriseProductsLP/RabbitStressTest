@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 using MassTransit;
@@ -10,8 +13,7 @@ namespace Publisher
     {
         public Task PrePublish<T>(PublishContext<T> context) where T : class
         {
-            // 1.  Save message ID to SQL Server
-            // Console.Out.WriteLineAsync($"Publishing message: {context.MessageId}");
+            InsertMessageInfo(context.MessageId);
 
             return TaskUtil.Completed;
         }
@@ -19,20 +21,65 @@ namespace Publisher
 
         public Task PostPublish<T>(PublishContext<T> context) where T : class
         {
-            // 1.  Decrement queue depth
-
             PublicationQueueManager.DecrementQueueDepth();
+
             return TaskUtil.Completed;
         }
 
         public Task PublishFault<T>(PublishContext<T> context, Exception exception) where T : class
         {
-            // 1.  Decrement queue depth
-            // 2.  Delete message ID from SQL Server
-
-            // Console.Out.WriteLineAsync($"Error publishing message: {context.MessageId}");
             PublicationQueueManager.DecrementQueueDepth();
+            DeleteMessageInfo(context.MessageId);
+
             return TaskUtil.Completed;
+        }
+
+        private static void DeleteMessageInfo(Guid? messageId)
+        {
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "dbo.spUnconsumedMessageDelete";
+                var clientNameParameter = new SqlParameter("clientName", SqlDbType.VarChar, 100)
+                {
+                    Value = Configuration.ClientName
+                };
+                var messageIdParameter = new SqlParameter("messageId", SqlDbType.UniqueIdentifier)
+                {
+                    Value = messageId
+                };
+
+                command.Parameters.Add(clientNameParameter);
+                command.Parameters.Add(messageIdParameter);
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
+        private static void InsertMessageInfo(Guid? messageId)
+        {
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "dbo.spUnconsumedMessageInsert";
+                var clientNameParameter = new SqlParameter("clientName", SqlDbType.VarChar, 100)
+                {
+                    Value = Configuration.ClientName
+                };
+                var messageIdParameter = new SqlParameter("messageId", SqlDbType.UniqueIdentifier)
+                {
+                    Value = messageId
+                };
+
+                command.Parameters.Add(clientNameParameter);
+                command.Parameters.Add(messageIdParameter);
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
         }
     }
 }
