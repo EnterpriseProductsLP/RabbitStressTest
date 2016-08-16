@@ -34,14 +34,7 @@
         {
             try
             {
-                PrepareWorkLoop();
-
-                while (!Stopping)
-                {
-                    WorkLoop();
-                }
-
-                this.CleanupWorkLoop();
+                Run();
             }
             finally
             {
@@ -57,11 +50,7 @@
             }
         }
 
-        protected abstract void CleanupWorkLoop();
-
-        protected abstract void PrepareWorkLoop();
-
-        protected abstract void WorkLoop();
+        protected abstract void Run();
 
         private void SetStopped()
         {

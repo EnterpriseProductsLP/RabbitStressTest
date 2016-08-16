@@ -24,8 +24,24 @@ namespace Publisher
             _publicationObserverHandle = _busControl.ConnectPublishObserver(new SqlLoggingPublicationObserver());
         }
 
-        protected override void CleanupWorkLoop()
+        protected override void Run()
         {
+            _busControl.Start();
+
+            while (!Stopping)
+            {
+                if (!PublicationQueueManager.CanPublish)
+                {
+                    continue;
+                }
+
+                var eventName = $"Event {PublicationQueueManager.QueueDepth}";
+                var paylod = new string('*', _messageSize);
+                var testEvent = new TestEvent(eventName, paylod);
+                PublicationQueueManager.IncrementQueueDepth();
+                _busControl.Publish(testEvent);
+            }
+
             Console.WriteLine("Waiting for publication queue to drain.");
             while (PublicationQueueManager.QueueDepth > 0)
             {
@@ -34,25 +50,6 @@ namespace Publisher
             Console.WriteLine("Finished processing publication queue.");
             _publicationObserverHandle.Disconnect();
             _busControl.Stop();
-        }
-
-        protected override void PrepareWorkLoop()
-        {
-            _busControl.Start();
-        }
-
-        protected override void WorkLoop()
-        {
-            if (!PublicationQueueManager.CanPublish)
-            {
-                return;
-            }
-
-            var eventName = $"Event {PublicationQueueManager.QueueDepth}";
-            var paylod = new string('*', _messageSize);
-            var testEvent = new TestEvent(eventName, paylod);
-            PublicationQueueManager.IncrementQueueDepth();
-            _busControl.Publish(testEvent);
         }
 
         private static IBusControl BuildBusContol()
