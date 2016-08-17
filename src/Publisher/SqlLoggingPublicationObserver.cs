@@ -29,6 +29,7 @@ namespace Publisher
         {
             PublicationQueueManager.DecrementQueueDepth();
             DeleteMessageInfo(context.MessageId);
+            Console.Out.WriteLineAsync(exception.Message);
 
             return TaskUtil.Completed;
         }
