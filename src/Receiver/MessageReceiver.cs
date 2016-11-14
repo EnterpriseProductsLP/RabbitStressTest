@@ -71,8 +71,8 @@ namespace Receiver
                         new Uri($"rabbitmq://{Configuration.ClusterName}"),
                         h =>
                         {
-                            h.Username("test");
-                            h.Password("test");
+                            h.Username(Configuration.ClientUsername);
+                            h.Password(Configuration.ClientPassword);
                             h.UseCluster(x =>
                             {
                                 x.ClusterMembers = Configuration.ClusterMembers;
