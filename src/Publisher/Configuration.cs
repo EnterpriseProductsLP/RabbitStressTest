@@ -92,5 +92,8 @@ namespace Publisher
             }
         }
 
+        public static string QueueName => _queueName ?? (_queueName = ConfigurationManager.AppSettings["QueueName"]);
+
+        public static string VirtualHost => _virtualHost ?? (_virtualHost = ConfigurationManager.AppSettings["VirtualHost"]);
     }
 }

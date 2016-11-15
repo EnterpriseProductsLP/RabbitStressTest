@@ -67,7 +67,7 @@ namespace Receiver
             return Bus.Factory.CreateUsingRabbitMq(
                 rabbitMqBusFactoryConfigurator =>
                     {
-                        var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/test");
+                        var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/{Configuration.VirtualHost}");
                         rabbitMqBusFactoryConfigurator.Host(
                             hostName,
                             rabbitMqHostConfigurator =>

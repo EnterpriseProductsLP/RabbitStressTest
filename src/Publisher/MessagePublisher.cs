@@ -59,7 +59,7 @@ namespace Publisher
             return Bus.Factory.CreateUsingRabbitMq(
                 rabbitMqBusFactoryConfigurator =>
                     {
-                        var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/test");
+                        var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/{Configuration.VirtualHost}");
                         var host = rabbitMqBusFactoryConfigurator.Host(
                             hostName,
                             rabbitMqHostConfigurator =>
