@@ -68,7 +68,7 @@ namespace Receiver
                 c =>
                 {
                     c.Host(
-                        new Uri($"rabbitmq://{Configuration.ClusterName}"),
+                        new Uri($"rabbitmq://{Configuration.ClusterName}/{Configuration.VirtualHost}"),
                         h =>
                         {
                             h.Username(Configuration.ClientUsername);

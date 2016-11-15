@@ -14,6 +14,8 @@ namespace Receiver
 
         private static string _queueName;
 
+        private static string _virtualHost;
+
         public static string ClientPassword
         {
             get
@@ -45,5 +47,7 @@ namespace Receiver
         public static string ClusterName => _clusterName ?? (_clusterName = ConfigurationManager.AppSettings["ClusterName"]);
 
         public static string QueueName => _queueName ?? (_queueName = ConfigurationManager.AppSettings["QueueName"]);
+
+        public static string VirtualHost => _virtualHost ?? (_virtualHost = ConfigurationManager.AppSettings["VirtualHost"]);
     }
 }
