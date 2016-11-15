@@ -2,64 +2,56 @@
 
 using Autofac;
 
+using Common;
+
 using MassTransit;
 using MassTransit.Policies;
 
-namespace Receiver
+namespace Publisher
 {
-    public class MessageReceiver
+    public class MessagePublisher : Worker
     {
         private readonly IBusControl _busControl;
 
-        private readonly object _stopLock = new object();
+        private readonly int _messageSize;
 
-        private bool _stopped;
+        private readonly ConnectHandle _publicationObserverHandle;
 
-        private bool _stopping;
-
-        public MessageReceiver()
+        public MessagePublisher()
         {
             var container = BuildContainer();
-
+            _messageSize = Configuration.MessageSize;
             _busControl = container.Resolve<IBusControl>();
+            _publicationObserverHandle = _busControl.ConnectPublishObserver(new SqlLoggingPublicationObserver());
         }
 
-        public bool Stopped
-        {
-            get
-            {
-                lock (_stopLock)
-                {
-                    return _stopped;
-                }
-            }
-        }
-
-        public bool Stopping
-        {
-            get
-            {
-                lock (_stopLock)
-                {
-                    return _stopping;
-                }
-            }
-        }
-
-        public void Start()
+        protected override void Run()
         {
             _busControl.Start();
-        }
 
-        public void Stop()
-        {
-            lock (_stopLock)
+            while (!Stopping)
             {
-                _stopping = true;
+                if (!PublicationQueueManager.CanPublish)
+                {
+                    continue;
+                }
+
+                var clientName = Configuration.ClientName;
+                var eventName = $"Event {PublicationQueueManager.QueueDepth}";
+                var paylod = new string('*', _messageSize);
+                var testEvent = new TestEvent(clientName, eventName, paylod);
+                PublicationQueueManager.IncrementQueueDepth();
+                _busControl.Publish(testEvent);
             }
 
+            Console.WriteLine("Waiting for publication queue to drain.");
+            while (PublicationQueueManager.QueueDepth > 0)
+            {
+            }
+
+            Console.WriteLine("Finished processing publication queue.");
+            _publicationObserverHandle.Disconnect();
             _busControl.Stop();
-            SetStopped();
         }
 
         private static IBusControl BuildBusContol(string queueName)
@@ -67,10 +59,16 @@ namespace Receiver
             return Bus.Factory.CreateUsingRabbitMq(
                 rabbitMqBusFactoryConfigurator =>
                     {
+<<<<<<< HEAD
+                        c.Host(
+                            new Uri($"rabbitmq://{Configuration.ClusterName}/{Configuration.VirtualHost}"), 
+                            h =>
+=======
                         var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/test");
-                        rabbitMqBusFactoryConfigurator.Host(
+                        var host = rabbitMqBusFactoryConfigurator.Host(
                             hostName,
                             rabbitMqHostConfigurator =>
+>>>>>>> 364457972275b9d7da6dc133469cd154c251b5c4
                                 {
                                     rabbitMqHostConfigurator.Username(Configuration.ClientUsername);
                                     rabbitMqHostConfigurator.Password(Configuration.ClientPassword);
@@ -80,10 +78,10 @@ namespace Receiver
                                                 rabbitMqClusterConfigurator.ClusterMembers = Configuration.ClusterMembers;
                                             });
                                 });
+
                         rabbitMqBusFactoryConfigurator.UseRetry(new IntervalRetryPolicy(new AllPolicyExceptionFilter(), new TimeSpan(0, 0, 0, 10)));
                         rabbitMqBusFactoryConfigurator.Durable = true;
                         rabbitMqBusFactoryConfigurator.PublisherConfirmation = true;
-                        rabbitMqBusFactoryConfigurator.ReceiveEndpoint(queueName, receiveEndpointConfigurator => { receiveEndpointConfigurator.Consumer<TestEventConsumer>(); });
                     });
         }
 
@@ -94,14 +92,6 @@ namespace Receiver
             builder.RegisterInstance(busControl).As<IBusControl>();
 
             return builder.Build();
-        }
-
-        private void SetStopped()
-        {
-            lock (_stopLock)
-            {
-                _stopped = true;
-            }
         }
     }
 }

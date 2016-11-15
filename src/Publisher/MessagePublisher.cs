@@ -5,6 +5,7 @@ using Autofac;
 using Common;
 
 using MassTransit;
+using MassTransit.Policies;
 
 namespace Publisher
 {
@@ -53,30 +54,34 @@ namespace Publisher
             _busControl.Stop();
         }
 
-        private static IBusControl BuildBusContol()
+        private static IBusControl BuildBusContol(string queueName)
         {
             return Bus.Factory.CreateUsingRabbitMq(
-                c =>
+                rabbitMqBusFactoryConfigurator =>
                     {
-                        c.Host(
-                            new Uri($"rabbitmq://{Configuration.ClusterName}/{Configuration.VirtualHost}"), 
-                            h =>
+                        var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/test");
+                        var host = rabbitMqBusFactoryConfigurator.Host(
+                            hostName,
+                            rabbitMqHostConfigurator =>
                                 {
-                                    h.Username(Configuration.ClientUsername);
-                                    h.Password(Configuration.ClientPassword);
-                                    h.UseCluster(x =>
+                                    rabbitMqHostConfigurator.Username(Configuration.ClientUsername);
+                                    rabbitMqHostConfigurator.Password(Configuration.ClientPassword);
+                                    rabbitMqHostConfigurator.UseCluster(
+                                        rabbitMqClusterConfigurator =>
                                             {
-                                                x.ClusterMembers = Configuration.ClusterMembers;
+                                                rabbitMqClusterConfigurator.ClusterMembers = Configuration.ClusterMembers;
                                             });
                                 });
-                        c.Durable = true;
-                        c.PublisherConfirmation = true;
+
+                        rabbitMqBusFactoryConfigurator.UseRetry(new IntervalRetryPolicy(new AllPolicyExceptionFilter(), new TimeSpan(0, 0, 0, 10)));
+                        rabbitMqBusFactoryConfigurator.Durable = true;
+                        rabbitMqBusFactoryConfigurator.PublisherConfirmation = true;
                     });
         }
 
         private static IContainer BuildContainer()
         {
-            var busControl = BuildBusContol();
+            var busControl = BuildBusContol(Configuration.QueueName);
             var builder = new ContainerBuilder();
             builder.RegisterInstance(busControl).As<IBusControl>();
 

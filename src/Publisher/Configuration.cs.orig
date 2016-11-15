@@ -19,9 +19,11 @@ namespace Publisher
 
         private static int? _messageSize;
 
-        private static string _queueName;
-		
+<<<<<<< HEAD
         private static string _virtualHost;
+=======
+        private static string _queueName;
+>>>>>>> 364457972275b9d7da6dc133469cd154c251b5c4
 
         public static string ClientName
         {
@@ -92,5 +94,10 @@ namespace Publisher
             }
         }
 
+<<<<<<< HEAD
+        public static string VirtualHost => _virtualHost ?? (_virtualHost = ConfigurationManager.AppSettings["VirtualHost"]);
+=======
+        public static string QueueName => _queueName ?? (_queueName = ConfigurationManager.AppSettings["QueueName"]);
+>>>>>>> 364457972275b9d7da6dc133469cd154c251b5c4
     }
 }

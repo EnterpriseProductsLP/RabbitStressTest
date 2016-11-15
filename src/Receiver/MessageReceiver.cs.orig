@@ -65,6 +65,26 @@ namespace Receiver
         private static IBusControl BuildBusContol(string queueName)
         {
             return Bus.Factory.CreateUsingRabbitMq(
+<<<<<<< HEAD
+                c =>
+                {
+                    c.Host(
+                        new Uri($"rabbitmq://{Configuration.ClusterName}/{Configuration.VirtualHost}"),
+                        h =>
+                        {
+                            h.Username(Configuration.ClientUsername);
+                            h.Password(Configuration.ClientPassword);
+                            h.UseCluster(x =>
+                            {
+                                x.ClusterMembers = Configuration.ClusterMembers;
+                            });
+                        });
+                    c.UseRetry(new IntervalRetryPolicy(new AllPolicyExceptionFilter(), new TimeSpan(0, 0, 1, 0)));
+                    c.Durable = true;
+                    c.PublisherConfirmation = true;
+                    c.ReceiveEndpoint(queueName, e => { e.Consumer<TestEventConsumer>(); });
+                });
+=======
                 rabbitMqBusFactoryConfigurator =>
                     {
                         var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/test");
@@ -85,6 +105,7 @@ namespace Receiver
                         rabbitMqBusFactoryConfigurator.PublisherConfirmation = true;
                         rabbitMqBusFactoryConfigurator.ReceiveEndpoint(queueName, receiveEndpointConfigurator => { receiveEndpointConfigurator.Consumer<TestEventConsumer>(); });
                     });
+>>>>>>> 364457972275b9d7da6dc133469cd154c251b5c4
         }
 
         private static IContainer BuildContainer()
