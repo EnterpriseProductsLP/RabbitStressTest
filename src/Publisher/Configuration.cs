@@ -19,6 +19,8 @@ namespace Publisher
 
         private static int? _messageSize;
 
+        private static string _queueName;
+
         public static string ClientName
         {
             get
@@ -87,5 +89,7 @@ namespace Publisher
                 return _messageSize.Value;
             }
         }
+
+        public static string QueueName => _queueName ?? (_queueName = ConfigurationManager.AppSettings["QueueName"]);
     }
 }

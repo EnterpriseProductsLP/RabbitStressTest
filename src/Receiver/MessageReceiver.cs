@@ -65,24 +65,26 @@ namespace Receiver
         private static IBusControl BuildBusContol(string queueName)
         {
             return Bus.Factory.CreateUsingRabbitMq(
-                c =>
-                {
-                    c.Host(
-                        new Uri($"rabbitmq://{Configuration.ClusterName}"),
-                        h =>
-                        {
-                            h.Username(Configuration.ClientUsername);
-                            h.Password(Configuration.ClientPassword);
-                            h.UseCluster(x =>
-                            {
-                                x.ClusterMembers = Configuration.ClusterMembers;
-                            });
-                        });
-                    c.UseRetry(new IntervalRetryPolicy(new AllPolicyExceptionFilter(), new TimeSpan(0, 0, 1, 0)));
-                    c.Durable = true;
-                    c.PublisherConfirmation = true;
-                    c.ReceiveEndpoint(queueName, e => { e.Consumer<TestEventConsumer>(); });
-                });
+                rabbitMqBusFactoryConfigurator =>
+                    {
+                        var hostName = new Uri($"rabbitmq://{Configuration.ClusterName}/test");
+                        rabbitMqBusFactoryConfigurator.Host(
+                            hostName,
+                            rabbitMqHostConfigurator =>
+                                {
+                                    rabbitMqHostConfigurator.Username(Configuration.ClientUsername);
+                                    rabbitMqHostConfigurator.Password(Configuration.ClientPassword);
+                                    rabbitMqHostConfigurator.UseCluster(
+                                        rabbitMqClusterConfigurator =>
+                                            {
+                                                rabbitMqClusterConfigurator.ClusterMembers = Configuration.ClusterMembers;
+                                            });
+                                });
+                        rabbitMqBusFactoryConfigurator.UseRetry(new IntervalRetryPolicy(new AllPolicyExceptionFilter(), new TimeSpan(0, 0, 0, 10)));
+                        rabbitMqBusFactoryConfigurator.Durable = true;
+                        rabbitMqBusFactoryConfigurator.PublisherConfirmation = true;
+                        rabbitMqBusFactoryConfigurator.ReceiveEndpoint(queueName, receiveEndpointConfigurator => { receiveEndpointConfigurator.Consumer<TestEventConsumer>(); });
+                    });
         }
 
         private static IContainer BuildContainer()
