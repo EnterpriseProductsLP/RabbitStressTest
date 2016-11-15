@@ -12,7 +12,7 @@ namespace Publisher
         static void Main()
         {
             // Wait for the receiver to connect and get things set up.
-            Thread.Sleep(5000);
+            Thread.Sleep(2500);
 
             SetConsoleTitle();
             RunMigrations();
