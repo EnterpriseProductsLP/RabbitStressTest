@@ -4,7 +4,6 @@
     <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.6.1" />
   </startup>
   <appSettings>
-    <add key="ClientName" value="Visual Studio" />
 <<<<<<< HEAD
     <add key="ClientPassword" value="1breakthings!"/>
     <add key="ClientUsername" value="test"/>
@@ -18,8 +17,6 @@
     <add key="ClusterName" value="[rabbitClusterName(usually original master node address)]" />
     <add key="ClusterMembers" value="[comma,delimited,cluster,membmer,addresses]" />
 >>>>>>> master
-    <add key="MaxQueueDepth" value="1000" />
-    <add key="MessageSize" value="4096" />
     <add key="QueueName" value="rabbit_stress_test" />
     <add key="VirtualHost" value="test" />
   </appSettings>
