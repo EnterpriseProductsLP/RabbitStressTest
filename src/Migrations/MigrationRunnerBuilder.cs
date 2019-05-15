@@ -6,6 +6,7 @@ using FluentMigrator.Runner.Generators.SqlServer;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
 using FluentMigrator.Runner.Processors.SqlServer;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Migrations
 {
@@ -18,18 +19,24 @@ namespace Migrations
             _connectionString = connectionString;
         }
 
-        public MigrationRunner BuildMigrationRunner()
+        public IMigrationRunner BuildMigrationRunner()
         {
-            var announcer = new ConsoleAnnouncer();
-            var connection = new SqlConnection(_connectionString);
-            var migrationAssembly = Assembly.GetAssembly(typeof(MigrationRunnerBuilder));
-            var migrationGenerator = new SqlServer2014Generator();
-            var processorOptions = new ProcessorOptions();
-            var dbFactory = new SqlServerDbFactory();
-            var runnerContext = new RunnerContext(announcer);
-            var serverProcessor = new SqlServerProcessor(connection, migrationGenerator, announcer, processorOptions, dbFactory);
+            var serviceProvider = new ServiceCollection()
+                .AddLogging(lb => lb.AddFluentMigratorConsole())
+                .AddFluentMigratorCore()
+                .ConfigureRunner(builder =>
+                {
+                    var assemblies = typeof(MigrationRunnerBuilder).Assembly;
+                    builder.AddSqlServer2014()
+                        .WithGlobalConnectionString(_connectionString)
+                        .WithMigrationsIn(assemblies);
+                })
+                .BuildServiceProvider();
 
-            return new MigrationRunner(migrationAssembly, runnerContext, serverProcessor);
+            using (var scope = serviceProvider.CreateScope())
+            {
+                return scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+            }
         }
     }
 }
