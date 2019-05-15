@@ -3,7 +3,9 @@
 using Autofac;
 
 using Common;
-
+using GreenPipes;
+using GreenPipes.Policies;
+using GreenPipes.Policies.ExceptionFilters;
 using MassTransit;
 using MassTransit.Policies;
 
@@ -73,9 +75,8 @@ namespace Publisher
                                             });
                                 });
 
-                        rabbitMqBusFactoryConfigurator.UseRetry(new IntervalRetryPolicy(new AllPolicyExceptionFilter(), new TimeSpan(0, 0, 0, 10)));
+                        rabbitMqBusFactoryConfigurator.UseRetry(new IntervalRetryPolicy(new AllExceptionFilter(), new TimeSpan(0, 0, 0, 10)));
                         rabbitMqBusFactoryConfigurator.Durable = true;
-                        rabbitMqBusFactoryConfigurator.PublisherConfirmation = true;
                     });
         }
 
