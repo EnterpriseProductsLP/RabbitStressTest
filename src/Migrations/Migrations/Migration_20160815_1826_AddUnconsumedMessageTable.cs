@@ -1,5 +1,5 @@
 ﻿using FluentMigrator;
-using FluentMigrator.Runner.Extensions;
+using FluentMigrator.SqlServer;
 
 namespace Migrations
 {
